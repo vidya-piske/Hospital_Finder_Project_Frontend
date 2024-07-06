@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase/firebase';
+import { auth } from '../firebase/firebase';
 import { signInWithEmailAndPassword, sendPasswordResetEmail, createUserWithEmailAndPassword } from 'firebase/auth';
-import '../Hospital_Project/styles.css';
+import '../styles/styles.css';
 
 const { Title, Text } = Typography;
 
