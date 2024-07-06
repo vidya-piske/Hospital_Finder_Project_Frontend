@@ -89,14 +89,14 @@ const LogIn = () => {
         <Title level={2}>{isSignUp ? 'Sign Up' : (isForgotPassword ? 'Reset Password' : 'Login')}</Title>
         <Form.Item
           name="email"
-          rules={[{ required: true, message: 'Please input your email!' }]}
+          rules={[{ required: true, message: 'Please enter your email!' }]}
         >
           <Input placeholder="Email" />
         </Form.Item>
         {!isForgotPassword && (
           <Form.Item
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: 'Please enter your password!' }]}
           >
             <Input.Password placeholder="Password" />
           </Form.Item>
