@@ -48,17 +48,16 @@ const LogIn = () => {
     }
   };
 
- // LogIn component or wherever you handle the login flow
-const handleGoogleLogin = async () => {
-  try {
-    await googleLogin();
-    navigate('/dashboard'); // Redirect on successful login
-  } catch (error) {
-    console.error('Google login error:', error);
-    message.error('Google login failed. Please try again.');
-  }
-};
-
+  const handleGoogleLogin = async () => {
+    try {
+      await googleLogin();
+      message.success('Google login successful!');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Google login error:', error);
+      message.error('Google login failed. Please try again.');
+    }
+  };
 
   const toggleForgotPassword = () => {
     setIsForgotPassword(!isForgotPassword);
