@@ -13,7 +13,7 @@ const AuthenticationComponent = () => {
   const navigate = useNavigate();
 
   const handleLogIn = async (values) => {
-    const { email, password } = values;
+  const { email, password } = values;
     try {
       await logIn(email, password);
       message.success('Login successful!');
