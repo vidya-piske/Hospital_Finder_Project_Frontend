@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { googleLogin, logIn, signUp, resetPassword } from '../firebase/auth'; // Adjust path as per your setup
+import { googleLogin, logIn, signUp, resetPassword } from '../firebase/auth';
 import '../styles/styles.css';
 
 const { Title, Text } = Typography;

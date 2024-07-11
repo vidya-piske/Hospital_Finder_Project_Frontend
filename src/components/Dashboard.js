@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { Button } from 'antd';
-import { signOut } from 'firebase/auth'; // Assuming you have imported the necessary Firebase functions
-import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
+import { signOut } from 'firebase/auth'; 
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = ({ auth, currentUser }) => {
-  const navigate = useNavigate(); // Initialize navigate function from useNavigate hook
+  const navigate = useNavigate(); 
 
   const handleSignOut = async () => {
     try {
