@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import {auth} from './firebase/firebase';
-import LogIn from './components/LogIn';
-import Dashboard from './components/Dashboard';
+import AuthenticationComponent from './components/AuthenticationComponent';
+import DashboardPage from './components/DashboardPage';
 import './styles/styles.css';
 
 const App = () => {
@@ -24,8 +24,8 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<LogIn auth={auth} />} />
-        <Route path="/dashboard" element={<Dashboard auth={auth} currentUser={currentUser} />} />
+        <Route path="/login" element={<AuthenticationComponent auth={auth} />} />
+        <Route path="/dashboard" element={<DashboardPage auth={auth} currentUser={currentUser} />} />
       </Routes>
     </Router>
   );

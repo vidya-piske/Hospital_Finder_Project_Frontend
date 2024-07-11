@@ -6,7 +6,7 @@ import '../styles/styles.css';
 
 const { Title, Text } = Typography;
 
-const LogIn = () => {
+const AuthenticationComponent = () => {
   const [form] = Form.useForm();
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -165,4 +165,4 @@ const LogIn = () => {
   );
 };
 
-export default LogIn;
+export default AuthenticationComponent;

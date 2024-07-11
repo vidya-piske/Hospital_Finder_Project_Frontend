@@ -5,7 +5,7 @@ import { Button } from 'antd';
 import { signOut } from 'firebase/auth'; 
 import { useNavigate } from 'react-router-dom';
 
-const Dashboard = ({ auth, currentUser }) => {
+const DashboardPage = ({ auth, currentUser }) => {
   const navigate = useNavigate(); 
 
   const handleSignOut = async () => {
@@ -32,4 +32,4 @@ const Dashboard = ({ auth, currentUser }) => {
   );
 };
 
-export default Dashboard;
+export default DashboardPage;

@@ -1,4 +1,3 @@
-// firebase/auth.js
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 const auth = getAuth();
