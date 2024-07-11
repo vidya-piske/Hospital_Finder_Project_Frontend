@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase/firebase';
-import { signInWithEmailAndPassword, sendPasswordResetEmail, createUserWithEmailAndPassword } from 'firebase/auth';
+import { googleLogin, logIn, signUp, resetPassword } from '../firebase/auth'; // Adjust path as per your setup
 import '../styles/styles.css';
 
 const { Title, Text } = Typography;
@@ -13,61 +12,53 @@ const LogIn = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (values) => {
+  const handleLogIn = async (values) => {
     const { email, password } = values;
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      message.success("Login Successfully");
+      await logIn(email, password);
+      message.success('Login successful!');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login error:', error);
+      message.error('Login failed. Please try again.');
+    }
+  };
+
+  const handleSignUp = async (values) => {
+    const { email, password } = values;
+    try {
+      await signUp(email, password);
+      message.success('Sign up successful! Please log in.');
+      setIsSignUp(false);
       form.resetFields();
-      navigate('/dashboard'); // Assuming '/dashboard' is the landing page after login
-    } catch (err) {
-      if (err.code === 'auth/wrong-password') {
-        message.error('Wrong password entered.');
-      } else if (err.code === 'auth/user-not-found') {
-        message.error('No user found with this email.');
-      } else {
-        message.error('Login failed. Please try again.');
-      }
+    } catch (error) {
+      console.error('Sign up error:', error);
+      message.error('Sign up failed. Please try again.');
     }
   };
 
   const handleForgotPassword = async (values) => {
     const { email } = values;
     try {
-      await sendPasswordResetEmail(auth, email);
+      await resetPassword(email);
       message.success('Password reset email sent. Check your inbox.');
-    } catch (err) {
-      console.error('Error sending reset email:', err.message);
-      if (err.code === 'auth/user-not-found') {
-        message.error('No user found with this email.');
-      } else {
-        message.error('Error sending reset email. Please try again.');
-      }
+    } catch (error) {
+      console.error('Reset password error:', error);
+      message.error('Error sending reset email. Please try again.');
     }
   };
 
-  const handleSignUp = async (values) => {
-    const { email, password, confirmPassword } = values;
-    if (password !== confirmPassword) {
-      message.error('Passwords do not match.');
-      return;
-    }
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      message.success("Signup Successfully");
-      form.resetFields();
-      navigate('/login');
-    } catch (err) {
-      console.error('Signup failed:', err.message);
-      if (err.code === 'auth/email-already-in-use') {
-        message.error('Email already in use.');
-      } else if (err.code === 'auth/weak-password') {
-        message.error('Password should be at least 6 characters.');
-      } else {
-        message.error('Signup failed. Please try again.');
-      }
-    }
-  };
+ // LogIn component or wherever you handle the login flow
+const handleGoogleLogin = async () => {
+  try {
+    await googleLogin();
+    navigate('/dashboard'); // Redirect on successful login
+  } catch (error) {
+    console.error('Google login error:', error);
+    message.error('Google login failed. Please try again.');
+  }
+};
+
 
   const toggleForgotPassword = () => {
     setIsForgotPassword(!isForgotPassword);
@@ -84,7 +75,7 @@ const LogIn = () => {
       <Form
         form={form}
         className="signup-form"
-        onFinish={isSignUp ? handleSignUp : (isForgotPassword ? handleForgotPassword : handleSubmit)}
+        onFinish={isSignUp ? handleSignUp : (isForgotPassword ? handleForgotPassword : handleLogIn)}
       >
         <Title level={2}>{isSignUp ? 'Sign Up' : (isForgotPassword ? 'Reset Password' : 'Login')}</Title>
         <Form.Item
@@ -104,16 +95,45 @@ const LogIn = () => {
         {isSignUp && (
           <Form.Item
             name="confirmPassword"
-            rules={[{ required: true, message: 'Please confirm your password!' }]}
+            rules={[
+              { required: true, message: 'Please confirm your password!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('The two passwords that you entered do not match!'));
+                },
+              }),
+            ]}
           >
             <Input.Password placeholder="Confirm Password" />
           </Form.Item>
         )}
         <Form.Item>
-          <Button type="primary" htmlType="submit" block>
-            {isSignUp ? 'Sign Up' : (isForgotPassword ? 'Send Reset Email' : 'Login')}
-          </Button>
+          {!isForgotPassword && !isSignUp && (
+            <Button type="primary" htmlType="submit" block>
+              Login
+            </Button>
+          )}
+          {isSignUp && (
+            <Button type="primary" htmlType="submit" block>
+              Sign Up
+            </Button>
+          )}
+          {isForgotPassword && (
+            <Button type="primary" htmlType="submit" block>
+              Reset Password
+            </Button>
+          )}
         </Form.Item>
+        {!isForgotPassword && !isSignUp && (
+          <Form.Item>
+            <Button type="primary" onClick={handleGoogleLogin} block>
+              Login with Google
+            </Button>
+          </Form.Item>
+        )}
         {!isForgotPassword && !isSignUp && (
           <Form.Item>
             <Button type="link" onClick={toggleForgotPassword}>
