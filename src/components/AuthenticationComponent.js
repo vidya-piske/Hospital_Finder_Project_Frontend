@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, message } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { googleLogin, logIn, signUp, resetPassword } from '../firebase/auth';
 import '../styles/styles.css';
 
@@ -11,6 +11,7 @@ const AuthenticationComponent = () => {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
+  
 
   const handleLogIn = async (values) => {
   const { email, password } = values;

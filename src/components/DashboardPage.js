@@ -47,6 +47,7 @@ const Dashboard = ({ auth }) => {
       const data = await response.json();
       setHospitalDetails(data.hospital_details);
       message.success(`Found ${data.hospital_details.length} hospitals`);
+      setPlace('');
     } catch (error) {
       console.error('Error fetching hospital details:', error);
       message.error('Error fetching hospital details');
@@ -106,7 +107,9 @@ const Dashboard = ({ auth }) => {
     <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} libraries={['places']}>
       <Layout className="fixed-layout">
         <Header className="dashboard-header">
-          <div className="logo">Hospital Finder</div>
+          <div className="logo-container">
+            <img src={`${process.env.PUBLIC_URL}/images/h_icon.jpeg`} alt="icon" className="logo" />
+          </div>
           <div className="user-info">
             <span className="user-email">{user?.displayName}</span>
             <Button className="logout-button" type="primary" onClick={handleSignOut}>Logout</Button>
@@ -114,18 +117,44 @@ const Dashboard = ({ auth }) => {
         </Header>
         <Content className="fixed-layout-content">
           <div className="site-layout-content">
-            <Title level={2}>Welcome to the Hospital Finder Dashboard</Title>
-            {searchMode === 'place' ? (
-              <>
-                <Input placeholder="Enter place name" value={place} onChange={(e) => setPlace(e.target.value)} className="input-field" />
-                <div className="button-group">
-                  <Button type="primary" onClick={handlePlaceSubmit} className="action-button" loading={loading}>Submit Place</Button>
-                  <Button type="default" onClick={() => toggleSearchMode('map')} className="action-button">Google Map</Button>
-                </div>
-              </>
-            ) : (
-              <Button type="default" onClick={() => toggleSearchMode('place')} className="action-button">Enter Place Name</Button>
-            )}
+            <Title level={2} className='title-style'>Welcome to the Hospital Finder Dashboard</Title>
+            <div className="input-container">
+              {searchMode === 'place' ? (
+                <>
+                  <Input
+                    placeholder="Enter place name"
+                    value={place}
+                    onChange={(e) => setPlace(e.target.value)}
+                    className="search-input"
+                  />
+                  <div className="button-group">
+                    <Button
+                      type="primary"
+                      onClick={handlePlaceSubmit}
+                      className="action-button"
+                      loading={loading}
+                    >
+                      Submit Place
+                    </Button>
+                    <Button
+                      type="default"
+                      onClick={() => toggleSearchMode('map')}
+                      className="action-button"
+                    >
+                      Google Map
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <Button
+                  type="default"
+                  onClick={() => toggleSearchMode('place')}
+                  className="action-button"
+                >
+                  Enter Place Name
+                </Button>
+              )}
+            </div>
             <div className="scrollable-content">
               <List
                 grid={{ gutter: 16, column: 1 }}
@@ -134,10 +163,34 @@ const Dashboard = ({ auth }) => {
                 renderItem={(item) => (
                   <List.Item>
                     <Card title={item.name}>
-                      {item.formatted_address && <p><strong>Address:</strong> {item.formatted_address}</p>}
-                      {item.formatted_phone_number && <p><strong>Phone Number:</strong> {item.formatted_phone_number}</p>}
-                      {item.rating && <p><strong>Rating:</strong> {item.rating}</p>}
-                      {item.website && <p><strong>Website:</strong> <a href={item.website} target="_blank" rel="noopener noreferrer">{item.website}</a></p>}
+                      {item.formatted_address && (
+                        <p>
+                          <strong>Address:</strong> {item.formatted_address}
+                        </p>
+                      )}
+                      {item.formatted_phone_number && (
+                        <p>
+                          <strong>Phone Number:</strong>{' '}
+                          {item.formatted_phone_number}
+                        </p>
+                      )}
+                      {item.rating && (
+                        <p>
+                          <strong>Rating:</strong> {item.rating}
+                        </p>
+                      )}
+                      {item.website && (
+                        <p>
+                          <strong>Website:</strong>{' '}
+                          <a
+                            href={item.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {item.website}
+                          </a>
+                        </p>
+                      )}
                     </Card>
                   </List.Item>
                 )}
@@ -145,11 +198,25 @@ const Dashboard = ({ auth }) => {
             </div>
           </div>
         </Content>
-        <Footer className="fixed-layout-footer">©2024 Created by Vidya Piske</Footer>
-        <Modal visible={mapVisible} onCancel={() => setMapVisible(false)} footer={null} width="80%">
-          <GoogleMap mapContainerStyle={{ width: '100%', height: '400px' }} center={{ lat: 17.35260820693234, lng: 78.55547866852676 }} zoom={10}>
+        <Footer className="fixed-layout-footer">
+          ©2024 Created by Vidya Piske
+        </Footer>
+        <Modal
+          visible={mapVisible}
+          onCancel={() => setMapVisible(false)}
+          footer={null}
+          width="80%"
+        >
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '400px' }}
+            center={{ lat: 17.35260820693234, lng: 78.55547866852676 }}
+            zoom={10}
+          >
             <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-              <Input placeholder="Search for a place" style={{ marginBottom: '20px', width: '100%' }} />
+              <Input
+                placeholder="Search for a place"
+                style={{ marginBottom: '20px', width: '100%' }}
+              />
             </Autocomplete>
             {selectedLocation && <Marker position={selectedLocation} />}
           </GoogleMap>
