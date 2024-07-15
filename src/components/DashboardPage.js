@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Input, Button, message, Typography, Modal, List, Card } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { getCurrentUser, signOut } from '../firebase/auth';
+import { LoadScript, GoogleMap, Autocomplete, Marker } from '@react-google-maps/api';
 import '../styles/styles.css';
 
 const { Header, Content, Footer } = Layout;
@@ -10,36 +10,36 @@ const { Title } = Typography;
 
 const Dashboard = ({ auth }) => {
   const [user, setUser] = useState(null);
+  const [searchMode, setSearchMode] = useState('place');
   const [place, setPlace] = useState('');
-  const [latLng, setLatLng] = useState({ lat: 0, lng: 0 });
-  const [isMapVisible, setIsMapVisible] = useState(false);
   const [hospitalDetails, setHospitalDetails] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [mapVisible, setMapVisible] = useState(false);
+  const [autocomplete, setAutocomplete] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-    } else {
-      navigate('/login');
-    }
+    (async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        currentUser ? setUser(currentUser) : navigate('/login');
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    })();
   }, [navigate]);
 
-  const fetchHospitalDetails = async () => {
+  const fetchHospitalDetails = async (url, payload) => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/place`, {
+      const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ place_name: place }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Failed to fetch hospital details:', errorData);
         message.error('Failed to fetch hospital details');
         return;
       }
@@ -56,11 +56,7 @@ const Dashboard = ({ auth }) => {
   };
 
   const handlePlaceSubmit = () => {
-    fetchHospitalDetails();
-  };
-
-  const handleMapClick = (event) => {
-    setLatLng({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+    place ? fetchHospitalDetails(`${process.env.REACT_APP_API_URL}/api/place`, { place_name: place }) : message.error('Please enter a place name');
   };
 
   const handleSignOut = async () => {
@@ -72,90 +68,94 @@ const Dashboard = ({ auth }) => {
     }
   };
 
-  const showMap = () => {
-    setIsMapVisible(true);
+  const onLoad = (autocompleteInstance) => setAutocomplete(autocompleteInstance);
+
+  const onPlaceChanged = () => {
+    if (autocomplete) {
+      const place = autocomplete.getPlace();
+      if (place.geometry) {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setSelectedLocation({ lat, lng });
+        fetchHospitalDetails(`${process.env.REACT_APP_API_URL}/api/location`, { location: `${lat}, ${lng}` });
+        setMapVisible(false);
+      } else {
+        message.error('Please select a place from the suggestions');
+      }
+    }
   };
 
-  const hideMap = () => {
-    setIsMapVisible(false);
+  const toggleSearchMode = (mode) => {
+    setSearchMode(mode);
+    setMapVisible(mode === 'map');
   };
+
+  if (!user) {
+    return (
+      <Layout className="fixed-layout">
+        <Content className="fixed-layout-content">
+          <div className="site-layout-content">
+            <Title level={2}>Loading...</Title>
+          </div>
+        </Content>
+      </Layout>
+    );
+  }
 
   return (
-    <Layout className="fixed-layout">
-      <Header className="dashboard-header">
-        <div className="logo">Hospital Finder</div>
-        <div className="user-info">
-          <span className="user-email">{user && user.email}</span>
-          <Button className="logout-button" type="primary" onClick={handleSignOut}>
-            Logout
-          </Button>
-        </div>
-      </Header>
-      <Content className="fixed-layout-content">
-        <div className="site-layout-content">
-          <Title level={2}>Welcome to the Hospital Finder Dashboard</Title>
-          <Input
-            placeholder="Enter place name"
-            value={place}
-            onChange={(e) => setPlace(e.target.value)}
-            className="input-field"
-          />
-          <div className="button-group">
-            <Button type="primary" onClick={handlePlaceSubmit} className="action-button" loading={loading}>
-              Submit
-            </Button>
-            <Button type="default" onClick={showMap} className="action-button">
-              Google Map
-            </Button>
+    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} libraries={['places']}>
+      <Layout className="fixed-layout">
+        <Header className="dashboard-header">
+          <div className="logo">Hospital Finder</div>
+          <div className="user-info">
+            <span className="user-email">{user?.displayName}</span>
+            <Button className="logout-button" type="primary" onClick={handleSignOut}>Logout</Button>
           </div>
-        </div>
-        <div className="scrollable-content">
-        <List
-          grid={{ gutter: 16, column: 1 }}
-          dataSource={hospitalDetails}
-          loading={loading}
-          renderItem={(item) => (
-            <List.Item>
-              <Card title={item.name}>
-                {item.formatted_address && (
-                  <p><strong>Address:</strong> {item.formatted_address}</p>
+        </Header>
+        <Content className="fixed-layout-content">
+          <div className="site-layout-content">
+            <Title level={2}>Welcome to the Hospital Finder Dashboard</Title>
+            {searchMode === 'place' ? (
+              <>
+                <Input placeholder="Enter place name" value={place} onChange={(e) => setPlace(e.target.value)} className="input-field" />
+                <div className="button-group">
+                  <Button type="primary" onClick={handlePlaceSubmit} className="action-button" loading={loading}>Submit Place</Button>
+                  <Button type="default" onClick={() => toggleSearchMode('map')} className="action-button">Google Map</Button>
+                </div>
+              </>
+            ) : (
+              <Button type="default" onClick={() => toggleSearchMode('place')} className="action-button">Enter Place Name</Button>
+            )}
+            <div className="scrollable-content">
+              <List
+                grid={{ gutter: 16, column: 1 }}
+                dataSource={hospitalDetails}
+                loading={loading}
+                renderItem={(item) => (
+                  <List.Item>
+                    <Card title={item.name}>
+                      {item.formatted_address && <p><strong>Address:</strong> {item.formatted_address}</p>}
+                      {item.formatted_phone_number && <p><strong>Phone Number:</strong> {item.formatted_phone_number}</p>}
+                      {item.rating && <p><strong>Rating:</strong> {item.rating}</p>}
+                      {item.website && <p><strong>Website:</strong> <a href={item.website} target="_blank" rel="noopener noreferrer">{item.website}</a></p>}
+                    </Card>
+                  </List.Item>
                 )}
-                {item.formatted_phone_number && (
-                  <p><strong>Phone Number:</strong> {item.formatted_phone_number}</p>
-                )}
-                {item.rating && (
-                  <p><strong>Rating:</strong> {item.rating}</p>
-                )}
-                {item.website && (
-                  <p><strong>Website:</strong> <a href={item.website} target="_blank" rel="noopener noreferrer">{item.website}</a></p>
-                )}
-              </Card>
-            </List.Item>
-          )}
-        />
-        </div>
-        <Modal
-          title="Google Map"
-          visible={isMapVisible}
-          onCancel={hideMap}
-          footer={null}
-          width="80%"
-          centered
-        >
-          <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
-            <GoogleMap
-              mapContainerStyle={{ height: '400px', width: '100%' }}
-              center={latLng}
-              zoom={10}
-              onClick={handleMapClick}
-            >
-              <Marker position={latLng} />
-            </GoogleMap>
-          </LoadScript>
+              />
+            </div>
+          </div>
+        </Content>
+        <Footer className="fixed-layout-footer">©2024 Created by Vidya Piske</Footer>
+        <Modal visible={mapVisible} onCancel={() => setMapVisible(false)} footer={null} width="80%">
+          <GoogleMap mapContainerStyle={{ width: '100%', height: '400px' }} center={{ lat: 17.35260820693234, lng: 78.55547866852676 }} zoom={10}>
+            <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
+              <Input placeholder="Search for a place" style={{ marginBottom: '20px', width: '100%' }} />
+            </Autocomplete>
+            {selectedLocation && <Marker position={selectedLocation} />}
+          </GoogleMap>
         </Modal>
-      </Content>
-      <Footer className="fixed-layout-footer">©2024 Created by Vidya Piske</Footer>
-    </Layout>
+      </Layout>
+    </LoadScript>
   );
 };
 
