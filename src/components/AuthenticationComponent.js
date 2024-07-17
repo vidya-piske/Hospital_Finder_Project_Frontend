@@ -128,11 +128,12 @@ const AuthenticationComponent = () => {
           )}
         </Form.Item>
         {!isForgotPassword && !isSignUp && (
-          <Form.Item>
-            <Button type="primary" onClick={handleGoogleLogin} block>
-              Login with Google
-            </Button>
-          </Form.Item>
+         <Form.Item>
+         <Button className="google-login-button" onClick={handleGoogleLogin} block>
+           <img src={`${process.env.PUBLIC_URL}/images/google_icon.png`} alt="Google icon" />
+           Login with Google
+         </Button>
+       </Form.Item>
         )}
         {!isForgotPassword && !isSignUp && (
           <Form.Item>

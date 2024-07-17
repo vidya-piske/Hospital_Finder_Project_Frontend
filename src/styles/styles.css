@@ -371,12 +371,25 @@
   color: #666;
 }
 
-
-
 .site-layout-content {
   margin-top: 55px;
 }
 
 .scrollable-content {
   margin: 40px;
+}
+
+.google-login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.google-login-button img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
 }
