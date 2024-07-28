@@ -71,6 +71,8 @@
   background-color: #40a9ff; 
 }
 
+/* Dashboard Page */
+
 .logo-container {
   display: flex;
   align-items: center;
@@ -82,78 +84,17 @@
   margin-right: 10px; 
 }
 
-/* Authentication component styles */
-.auth-container {
+.spinner-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f0f0f0;
-}
-
-.auth-form {
-  max-width: 400px;
+  height: 100%;
   width: 100%;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.auth-form .auth-info {
-  margin-top: 10px;
-  text-align: center;
-}
-
-.auth-form .ant-input,
-.auth-form .ant-input-password {
-  width: 100%;
-  padding: 12px;
-  margin-top: 5px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 16px;
-}
-
-.auth-form .ant-btn-primary {
-  width: 100%;
-  padding: 12px;
-  background-color: #1890ff;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
-}
-
-.auth-form .ant-btn-primary:hover {
-  background-color: #40a9ff;
-  transform: scale(1.05);
-}
-
-.auth-form .ant-btn-link {
-  background: none;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-  text-decoration: underline;
-  font-size: 16px;
-  transition: color 0.3s ease-in-out;
-}
-
-.auth-form .ant-btn-link:hover {
-  color: #0056b3;
-}
-
-/* Dashboard page styles */
-.dashboard-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
+/* Show the response card when hospital details are available */
+.response-card.visible {
+  display: block;
 }
 
 .dashboard-content {
@@ -191,23 +132,17 @@
   margin-left: 10px;
 }
 
-.title-style{
+.title-style {
   margin-left: 36px;
+  margin-top: 56px;
 }
 
-.input-container{
+.input-container {
   margin-left: 38px;
 }
 
-/* Input field and response card styles */
-.search-container {
-  width: 100%;
-  max-width: 600px;
-  margin: 20px auto;
-}
-
 .search-input {
-  width: 300px; 
+  width: 300px;
   height: 36px;
   padding: 8px 12px;
   border: 1px solid #ccc;
@@ -234,31 +169,20 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
   box-sizing: border-box;
+  white-space: pre-wrap; 
 }
 
-/* Footer styles */
-.ant-layout-footer {
-  text-align: center;
-  background-color: #ffffff;
-  padding: 12px;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+.hospital-detail {
+  margin-bottom: 20px; /* Space between different hospital details */
 }
 
-/* Signup page styles */
-.signup-form p {
-  margin-top: 20px;
-  font-size: 14px;
-  color: #666;
+.hospital-detail-line {
+  margin: 5px 0; /* Space between lines within a single hospital's details */
 }
 
-/* Additional classes */
 .button-group {
   margin-top: 30px;
   margin-bottom: 20px;
-}
-
-.action-button {
-  margin-right: 10px;
 }
 
 .fixed-layout {
@@ -332,12 +256,13 @@
   border-radius: 4px;
   box-sizing: border-box;
   font-size: 16px;
+  height: 52px;
 }
 
 .signup-form .ant-btn-primary {
   width: 100%;
   padding: 12px;
-  background-color: #007bff; /* Blue button color */
+  background-color: #007bff;
   border: none;
   border-radius: 4px;
   color: white;
@@ -346,15 +271,10 @@
   transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
-.signup-form .ant-btn-primary:hover {
-  background-color: #0056b3; /* Darker blue on hover */
-  transform: scale(1.05);
-}
-
 .signup-form .ant-btn-link {
   background: none;
   border: none;
-  color: #007bff; /* Blue link color */
+  color: #007bff;
   cursor: pointer;
   text-decoration: underline;
   font-size: 16px;
@@ -362,17 +282,7 @@
 }
 
 .signup-form .ant-btn-link:hover {
-  color: #0056b3; /* Darker blue on hover */
-}
-
-.signup-form p {
-  margin-top: 20px;
-  font-size: 14px;
-  color: #666;
-}
-
-.site-layout-content {
-  margin-top: 55px;
+  color: #0056b3; 
 }
 
 .scrollable-content {
@@ -392,4 +302,37 @@
   width: 20px;
   height: 20px;
   margin-right: 8px;
+}
+
+/* Default Button Styles */
+.action-button {
+  margin-right: 10px;
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff; /* Default plain background */
+  color: #1890ff; /* Default text color */
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-button:hover,
+.action-button:focus {
+  background-color: #e6f7ff; /* Light blue background on hover */
+  color: #1890ff; /* Blue text color on hover */
+  outline: none;
+}
+
+.action-button.active {
+  background-color: #1890ff; /* Blue background for active button */
+  color: #fff; /* White text color for active button */
+  border-color: #1890ff; /* Blue border for active button */
+}
+
+.action-button:disabled {
+  background-color: #d9d9d9; /* Disabled color */
+  color: #a6a6a6;
+  cursor: not-allowed;
 }

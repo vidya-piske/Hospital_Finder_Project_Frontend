@@ -20,7 +20,6 @@ const AuthenticationComponent = () => {
       message.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {
-      console.error('Login error:', error);
       message.error('Login failed. Please try again.');
     }
   };
@@ -33,7 +32,6 @@ const AuthenticationComponent = () => {
       setIsSignUp(false);
       form.resetFields();
     } catch (error) {
-      console.error('Sign up error:', error);
       message.error('Sign up failed. Please try again.');
     }
   };
@@ -44,7 +42,6 @@ const AuthenticationComponent = () => {
       await resetPassword(email);
       message.success('Password reset email sent. Check your inbox.');
     } catch (error) {
-      console.error('Reset password error:', error);
       message.error('Error sending reset email. Please try again.');
     }
   };
@@ -55,7 +52,6 @@ const AuthenticationComponent = () => {
       message.success('Google login successful!');
       navigate('/dashboard');
     } catch (error) {
-      console.error('Google login error:', error);
       message.error('Google login failed. Please try again.');
     }
   };
