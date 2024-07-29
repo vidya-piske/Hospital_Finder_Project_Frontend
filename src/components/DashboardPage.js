@@ -10,7 +10,6 @@ const { Title } = Typography;
 
 const Dashboard = ({ auth }) => {
   const [user, setUser] = useState(null);
-  const [searchMode, setSearchMode] = useState('place');
   const [place, setPlace] = useState('');
   const [hospitalDetails, setHospitalDetails] = useState('');
   const [loading, setLoading] = useState(false);
@@ -108,45 +107,33 @@ const Dashboard = ({ auth }) => {
             <>
               <Title level={2} className="title-style">Welcome to the Hospital Finder Dashboard</Title>
               <div className="input-container">
-                {searchMode === 'place' ? (
-                  <>
-                    <Input
-                      placeholder="Enter place name"
-                      value={place}
-                      onChange={(e) => setPlace(e.target.value)}
-                      className="search-input"
-                    />
-                    <div className="button-group">
-                      <Button
-                        type="primary"
-                        onClick={handlePlaceSubmit}
-                        className={`action-button ${activeButton === 'submit' ? 'active' : ''}`} // Active button style
-                        loading={placeLoading}
-                      >
-                        Submit Place
-                      </Button>
-                      <Button
-                        type="default"
-                        onClick={() => {
-                          setMapModalVisible(true);
-                          setActiveButton('map'); // Set active button state
-                        }}
-                        className={`action-button ${activeButton === 'map' ? 'active' : ''}`} // Active button style
-                        loading={mapLoading}
-                      >
-                        Google Map
-                      </Button>
-                    </div>
-                  </>
-                ) : (
+                <Input
+                  placeholder="Enter place name"
+                  value={place}
+                  onChange={(e) => setPlace(e.target.value)}
+                  className="search-input"
+                />
+                <div className="button-group">
+                  <Button
+                    type="primary"
+                    onClick={handlePlaceSubmit}
+                    className={`action-button ${activeButton === 'submit' ? 'active' : ''}`} // Active button style
+                    loading={placeLoading}
+                  >
+                    Submit Place
+                  </Button>
                   <Button
                     type="default"
-                    onClick={() => setSearchMode('place')}
-                    className="action-button"
+                    onClick={() => {
+                      setMapModalVisible(true);
+                      setActiveButton('map'); // Set active button state
+                    }}
+                    className={`action-button ${activeButton === 'map' ? 'active' : ''}`} // Active button style
+                    loading={mapLoading}
                   >
-                    Enter Place Name
+                    Google Map
                   </Button>
-                )}
+                </div>
               </div>
               <div className="scrollable-content">
                 {loading ? (
