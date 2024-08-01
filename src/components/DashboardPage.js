@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, signOut } from '../firebase/auth';
 import MapModal from './MapModal';
 import '../styles/styles.css';
+import { connect } from 'react-redux';
+import { setHospitalDetails } from '../redux/actions/userActions';
 
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
@@ -170,4 +172,12 @@ const Dashboard = ({ auth }) => {
   );
 };
 
-export default Dashboard;
+const mapStateToProps = (state) => ({
+    user: state.user
+})
+
+const mapDispatchToProps = {
+    setHospitalDetails
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

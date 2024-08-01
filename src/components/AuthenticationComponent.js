@@ -3,6 +3,8 @@ import { Form, Input, Button, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { googleLogin, logIn, signUp, resetPassword } from '../firebase/auth';
 import '../styles/styles.css';
+import {connect} from 'react-redux';
+import { setUser } from '../redux/actions/userActions';
 
 const { Title, Text } = Typography;
 
@@ -11,12 +13,13 @@ const AuthenticationComponent = () => {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
-  
 
   const handleLogIn = async (values) => {
   const { email, password } = values;
     try {
-      await logIn(email, password);
+      const userCredential = await logIn(email, password);
+      const user  = userCredential.user;
+      setUser(user);
       message.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {
@@ -27,7 +30,9 @@ const AuthenticationComponent = () => {
   const handleSignUp = async (values) => {
     const { email, password } = values;
     try {
-      await signUp(email, password);
+      const userCredential = await signUp(email, password);
+      const user = userCredential.user;
+      setUser(user);
       message.success('Sign up successful! Please log in.');
       setIsSignUp(false);
       form.resetFields();
@@ -48,7 +53,9 @@ const AuthenticationComponent = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      await googleLogin();
+      const userCredential = await googleLogin();
+      const user = userCredential.user;
+      setUser(user);
       message.success('Google login successful!');
       navigate('/dashboard');
     } catch (error) {
@@ -163,4 +170,8 @@ const AuthenticationComponent = () => {
   );
 };
 
-export default AuthenticationComponent;
+const mapDispatchToProps = {
+  setUser
+}
+
+export default connect(null, mapDispatchToProps)(AuthenticationComponent);
