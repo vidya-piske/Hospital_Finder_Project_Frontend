@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Input, Button, message, Typography, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser, signOut } from '../firebase/auth';
+import { useDispatch, useSelector } from 'react-redux';
+import { signOut } from '../firebase/auth';
 import MapModal from './MapModal';
 import '../styles/styles.css';
-import { connect } from 'react-redux';
 import { setHospitalDetails } from '../redux/actions/userActions';
 
 const { Header, Content, Footer } = Layout;
@@ -13,26 +13,28 @@ const { Title } = Typography;
 const Dashboard = ({ auth }) => {
   const [user, setUser] = useState(null);
   const [place, setPlace] = useState('');
-  const [hospitalDetails, setHospitalDetails] = useState('');
   const [loading, setLoading] = useState(false);
   const [mapModalVisible, setMapModalVisible] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
   const [placeLoading, setPlaceLoading] = useState(false);
   const [activeButton, setActiveButton] = useState(''); // State for active button
+
+  const userValue = useSelector(state => state.user.user); // Access user from Redux state
+  const hospitalDetails = useSelector(state => state.user.hospitalDetails); // Access hospitalDetails from Redux state
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const currentUser = await getCurrentUser();
-        if (currentUser) setUser(currentUser);
-        else navigate('/login');
-      } catch {
-        message.error('Error fetching current user');
+    try {
+      if (userValue) {
+        setUser(userValue);
+      } else {
+        navigate('/login'); // Redirect if user is not in Redux state
       }
-    };
-    fetchUser();
-  }, [navigate]);
+    } catch {
+      message.error('Error fetching current user');
+    }
+  }, [userValue, navigate]); // Dependency array to rerun effect if userValue or navigate changes
 
   const fetchHospitalDetails = async (url, payload) => {
     setLoading(true);
@@ -46,7 +48,7 @@ const Dashboard = ({ auth }) => {
       if (!response.ok) throw new Error('Failed to fetch hospital details');
 
       const { summary } = await response.json();
-      setHospitalDetails(summary || 'No details available');
+      dispatch(setHospitalDetails(summary || 'No details available'));
     } catch (error) {
       message.error(`Error: ${error.message}`);
     } finally {
@@ -77,12 +79,12 @@ const Dashboard = ({ auth }) => {
     }
   };
 
-  const handleMarkerSelect = useCallback(async (coords) => {
+  const handleMarkerSelect = async (coords) => {
     setMapLoading(true);
     setActiveButton('map'); // Set active button state
     await fetchHospitalDetails(`${process.env.REACT_APP_API_URL}/location`, { location: `${coords.lat},${coords.lng}` });
     setMapLoading(false);
-  }, []);
+  };
 
   return (
     <Layout className="fixed-layout">
@@ -142,7 +144,7 @@ const Dashboard = ({ auth }) => {
                   <div className="spinner-container">
                     <Spin size="medium" />
                   </div>
-                ) : hospitalDetails ? (
+                ) : hospitalDetails && typeof hospitalDetails === 'string' ? (
                   <div className="response-cards-container">
                     <div className="response-card visible">
                       {hospitalDetails.split('\n\n').map((item, index) => (
@@ -172,12 +174,4 @@ const Dashboard = ({ auth }) => {
   );
 };
 
-const mapStateToProps = (state) => ({
-    user: state.user
-})
-
-const mapDispatchToProps = {
-    setHospitalDetails
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
+export default Dashboard;
