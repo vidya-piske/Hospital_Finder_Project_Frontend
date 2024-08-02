@@ -3,24 +3,24 @@ import { Form, Input, Button, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { googleLogin, logIn, signUp, resetPassword } from '../firebase/auth';
 import '../styles/styles.css';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/actions/userActions';
 
 const { Title, Text } = Typography;
 
-const AuthenticationComponent = (props) => {
-  const { setUser } = props; // Access setUser from props
+const AuthenticationComponent = () => {
   const [form] = Form.useForm();
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Use useDispatch to get dispatch function
 
   const handleLogIn = async (values) => {
     const { email, password } = values;
     try {
       const userCredential = await logIn(email, password);
       const user = userCredential.user;
-      setUser(user); // Use setUser from props
+      dispatch(setUser(user)); // Dispatch the setUser action
       message.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {
@@ -33,7 +33,7 @@ const AuthenticationComponent = (props) => {
     try {
       const userCredential = await signUp(email, password);
       const user = userCredential.user;
-      setUser(user); // Use setUser from props
+      dispatch(setUser(user)); // Dispatch the setUser action
       message.success('Sign up successful! Please log in.');
       setIsSignUp(false);
       form.resetFields();
@@ -56,7 +56,7 @@ const AuthenticationComponent = (props) => {
     try {
       const userCredential = await googleLogin();
       const user = userCredential.user;
-      setUser(user); // Use setUser from props
+      dispatch(setUser(user)); // Dispatch the setUser action
       message.success('Google login successful!');
       navigate('/dashboard');
     } catch (error) {
@@ -132,12 +132,12 @@ const AuthenticationComponent = (props) => {
           )}
         </Form.Item>
         {!isForgotPassword && !isSignUp && (
-          <Form.Item>
-            <Button className="google-login-button" onClick={handleGoogleLogin} block>
-              <img src={`${process.env.PUBLIC_URL}/images/google_icon.png`} alt="Google icon" />
-              Login with Google
-            </Button>
-          </Form.Item>
+         <Form.Item>
+           <Button className="google-login-button" onClick={handleGoogleLogin} block>
+             <img src={`${process.env.PUBLIC_URL}/images/google_icon.png`} alt="Google icon" />
+             Login with Google
+           </Button>
+         </Form.Item>
         )}
         {!isForgotPassword && !isSignUp && (
           <Form.Item>
@@ -171,8 +171,4 @@ const AuthenticationComponent = (props) => {
   );
 };
 
-const mapDispatchToProps = {
-  setUser
-};
-
-export default connect(null, mapDispatchToProps)(AuthenticationComponent);
+export default AuthenticationComponent;
