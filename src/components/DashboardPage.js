@@ -1,19 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Layout, Input, Button, message, Typography, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, signOut } from '../firebase/auth';
 import MapModal from './MapModal';
 import '../styles/styles.css';
 import { connect } from 'react-redux';
-import { setHospitalDetails } from '../redux/actions/userActions';
+import { setHospitalDetails, setUser } from '../redux/actions/userActions';
 
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
 
-const Dashboard = ({ auth }) => {
-  const [user, setUser] = useState(null);
+const Dashboard = ({ auth, user, hospitalDetails, setHospitalDetails, setUser }) => {
   const [place, setPlace] = useState('');
-  const [hospitalDetails, setHospitalDetails] = useState('');
   const [loading, setLoading] = useState(false);
   const [mapModalVisible, setMapModalVisible] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
@@ -25,14 +23,17 @@ const Dashboard = ({ auth }) => {
     const fetchUser = async () => {
       try {
         const currentUser = await getCurrentUser();
-        if (currentUser) setUser(currentUser);
-        else navigate('/login');
+        if (currentUser) {
+          setUser(currentUser); // Dispatch action to set user in Redux
+        } else {
+          navigate('/login');
+        }
       } catch {
         message.error('Error fetching current user');
       }
     };
     fetchUser();
-  }, [navigate]);
+  }, [navigate, setUser]);
 
   const fetchHospitalDetails = async (url, payload) => {
     setLoading(true);
@@ -46,9 +47,11 @@ const Dashboard = ({ auth }) => {
       if (!response.ok) throw new Error('Failed to fetch hospital details');
 
       const { summary } = await response.json();
-      setHospitalDetails(summary || 'No details available');
+      const details = summary || null; // Set details to null if empty
+      setHospitalDetails(details); // Update Redux store
     } catch (error) {
       message.error(`Error: ${error.message}`);
+      setHospitalDetails(null); // Ensure Redux state is null on error
     } finally {
       setLoading(false);
     }
@@ -143,18 +146,20 @@ const Dashboard = ({ auth }) => {
                     <Spin size="medium" />
                   </div>
                 ) : hospitalDetails ? (
-                  <div className="response-cards-container">
-                    <div className="response-card visible">
-                      {hospitalDetails.split('\n\n').map((item, index) => (
-                        <div key={index} className="hospital-detail">
-                          {item.split('\n').map((line, idx) => (
-                            <p key={idx} className="hospital-detail-line">{line}</p>
-                          ))}
-                        </div>
-                      ))}
+                    <div className="response-cards-container">
+                      <div className="response-card visible">
+                        {hospitalDetails.split('\n\n').map((item, index) => (
+                          <div key={index} className="hospital-detail">
+                            {item.split('\n').map((line, idx) => (
+                              <p key={idx} className="hospital-detail-line">{line}</p>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ) : null}
+                  ) : (
+                  <p>No hospital details available.</p>
+                )}
               </div>
             </>
           )}
@@ -173,11 +178,13 @@ const Dashboard = ({ auth }) => {
 };
 
 const mapStateToProps = (state) => ({
-    user: state.user
-})
+  user: state.user,
+  hospitalDetails: state.hospitalDetails
+});
 
 const mapDispatchToProps = {
-    setHospitalDetails
-}
+  setHospitalDetails,
+  setUser
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
